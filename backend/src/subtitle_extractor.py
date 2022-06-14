@@ -1,6 +1,8 @@
-import pysrt
 import subprocess
 from typing import Tuple, List
+
+import pysrt
+
 from ccextractor_win.src_path import exe_file_path
 from media.src_path import video_file_path, srt_file_path
 
@@ -11,7 +13,8 @@ class SubtitleExtractor:
 
     @staticmethod
     def extract_srt_file() -> None:
-        subprocess.run([exe_file_path, video_file_path])
+        subprocess.run([exe_file_path, video_file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return
 
     @staticmethod
     def get_time_stamps(text: str) -> List[Tuple]:
@@ -23,9 +26,3 @@ class SubtitleExtractor:
                 end = str(sub.end.to_time())
                 time_stamps.append((start, end))
         return time_stamps
-
-
-if __name__ == '__main__':
-    extractor = SubtitleExtractor()
-    extractor.extract_srt_file()
-    extractor.get_time_stamps("what?")
