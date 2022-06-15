@@ -1,8 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from .forms import VideoForm
 
 
 def extract_srt(request):
     if request.method == "GET":
-        return render(request, 'index.html')
+        form = VideoForm()
+        return render(request, "index.html", {"form": form})
 
-    video_file = request.FILES["video_file"]
+    form = VideoForm(request.POST, request.FILES)
+    if not form.is_valid():
+        form = VideoForm()
+        return render(request, "index.html", {"form": form})
+    form.save()
+    return redirect(extract_srt)
