@@ -1,6 +1,6 @@
 import os
 import subprocess
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import pysrt
 
@@ -25,14 +25,18 @@ class SrtExtractor:
 
 
 class GetTimeStamps:
-    def __init__(self, srt_file_path: str):
+    def __init__(self, srt_file_path: str, keywords: str):
         self._srt_file_path = srt_file_path
+        self._keywords = keywords
 
-    def get_time_stamps(self, text: str) -> List[Dict]:
-        sub_list = pysrt.open(self._srt_file_path)
+    def get_time_stamps(self) -> Optional[List[Dict]]:
+        try:
+            sub_list = pysrt.open(self._srt_file_path)
+        except FileNotFoundError as e:
+            return None
         time_stamps = []
         for sub in sub_list:
-            if text.lower() in sub.text.lower():
+            if self._keywords.lower() in sub.text.lower():
                 dic = {
                     "start": str(sub.start.to_time()),
                     "end": str(sub.end.to_time())

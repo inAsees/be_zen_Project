@@ -13,12 +13,13 @@
 
 {% if time_stamps %}
 <ul>
-{% for time_stamp in time_stamps %}
-<li>Start time = {{ time_stamp.start }} | End time = {{ time_stamp.end }}</li>
-{% endfor %}
+    {% for time_stamp in time_stamps %}
+    <li>Start time = {{ time_stamp.start }} | End time = {{ time_stamp.end }}</li>
+    {% endfor %}
 </ul>
 
 {% else %}
+<h1>Please provide the search keywords below.</h1>
 <form action="" method="post">
     {% csrf_token %}
     {{ sub_form }}
