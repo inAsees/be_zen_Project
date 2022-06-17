@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from backend_core.handle_video_file import SrtExtractor, GetTimeStamps, DeleteSrtFile
+from backend_core.upload_data import UploadKeywords
 from file_path import dir_name
 from .forms import VideoForm, SubtitleForm
 
@@ -55,7 +56,9 @@ def search_subtitle(request):
         sub_form = SubtitleForm()
         return render(request, "subtitle_search.html", {"sub_form": sub_form})
 
+    UploadKeywords(srt_file_path, keywords).upload_srt_and_keyword()
+
     DeleteSrtFile(srt_file_path).delete_srt_file()
 
-    messages.success(request, "Time stamps found for the given text.")
+    messages.success(request, "Keywords and SRT file uploaded to DynamoDB.")
     return render(request, "subtitle_search.html", {"time_stamps": time_stamps})
