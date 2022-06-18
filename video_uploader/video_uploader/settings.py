@@ -129,3 +129,6 @@ AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 AWS_STORAGE_BUCKET_NAME = "videos-for-extracting-srt-files"
 AWS_QUERYSTRING_AUTH = False
 AWS_S3_FILE_OVERWRITE = False
+
+# Tell Celery how to find Redis
+CELERY_BROKER_URL = 'redis://localhost:6379'
