@@ -53,7 +53,7 @@ To know how to configure your AWS credentials using AWS CLI,
     cd video_uploader 
     python manage.py runserver
     ```
-3. Now open another terminal and run the following command:
+3. Now open another terminal and run the following command to start the Celery process:
     ```sh
     celery -A video_uploader.celery worker -l INFO
     ```

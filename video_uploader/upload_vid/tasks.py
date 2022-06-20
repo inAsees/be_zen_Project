@@ -46,9 +46,7 @@ class UploadData:
 @shared_task
 def strip_cc_and_upload(file_path, uid):
     temp_file_path = tempfile.NamedTemporaryFile()
-    print("Temp File Path: ", "{}.srt".format(temp_file_path.name))
     SrtExtractor().extract_srt_file(file_path, "{}.srt".format(temp_file_path.name))
 
     UploadData.upload_video(file_path, Path(file_path).name)
     UploadData.upload_srt("{}.srt".format(temp_file_path.name), uid)
-    print("SRT uploaded")

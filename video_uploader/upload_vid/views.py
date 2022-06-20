@@ -36,7 +36,6 @@ def get_time_stamps_for_keyword(request):
     filtering_exp = Key("partition_key").eq(dynamo_id)
     str_res = table.query(KeyConditionExpression=filtering_exp).get("Items", [{}])[0].get("srt_file")
 
-    print(str_res)
     res = GetTimeStamps(str_res, search_text).get_time_stamps()
     res_str = json.dumps({"timestamps": res})
     return HttpResponse(res_str, content_type='application/json charset=utf-8')
