@@ -2,12 +2,6 @@ import boto3
 
 
 def create_table(dyn_resource=None):
-    """
-    Creates a DynamoDB table.
-
-    :param dyn_resource: Either a Boto3 or DAX resource.
-    :return: The newly created table.
-    """
     if dyn_resource is None:
         dyn_resource = boto3.resource('dynamodb')
 
