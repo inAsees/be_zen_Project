@@ -34,8 +34,10 @@ def get_time_stamps_for_keyword(request):
     table = dyn_resource.Table('store_keywords')
 
     filtering_exp = Key("partition_key").eq(dynamo_id)
-    str_res = table.query(KeyConditionExpression=filtering_exp).get("Items", [{}])[0].get("srt_file")
+    if len(table.query(KeyConditionExpression=filtering_exp).get("Items", [])) == 0:
+        return HttpResponse(json.dumps({"status": "Processing"}), content_type='application/json charset=utf-8')
 
+    str_res = table.query(KeyConditionExpression=filtering_exp).get("Items", [{}])[0].get("srt_file")
     res = GetTimeStamps(str_res, search_text).get_time_stamps()
     res_str = json.dumps({"timestamps": res})
     return HttpResponse(res_str, content_type='application/json charset=utf-8')

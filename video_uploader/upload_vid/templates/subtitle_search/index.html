@@ -27,12 +27,17 @@
                     dataType: "json",
                     contentType: "application/json; charset=utf-8",
                     success: function(data) {
-                        var blkstr = [];
-                        $.each(data.timestamps, function(idx,val) {
-                          var str = val.start + " -> " + val.end;
-                          blkstr.push(str);
-                        });
-                        $("#timestamps").val(blkstr.join("\n"));
+                        if (data.timestamps) {
+                            var blkstr = [];
+                            $.each(data.timestamps, function(idx,val) {
+                              var str = val.start + " -> " + val.end;
+                              blkstr.push(str);
+                            });
+                            $("#timestamps").val(blkstr.join("\n"));
+                        }
+                        else {
+                            $("#timestamps").val(data.status);
+                        }
                     },
                     error: function(data){alert("fail");}
                });
