@@ -15,8 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('subtitle_search/', include('video_uploader.urls')),
-]
 
+urlpatterns = [
+    path('subtitle_search/', include('upload_vid.urls')),
+    path('admin/', admin.site.urls),
+
+]
