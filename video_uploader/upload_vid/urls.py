@@ -3,6 +3,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("", views.extract_srt, name="index"),
-    path("search_subtitle/", views.search_subtitle, name="search_subtitle"),
+    path('', views.index, name='index'),
+    path('extractcc', views.extract_cc),
+    path('search', views.get_time_stamps_for_keyword),
 ]
