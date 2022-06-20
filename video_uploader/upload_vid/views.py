@@ -2,6 +2,7 @@ import json
 import uuid
 from pathlib import Path
 from typing import Optional, List, Dict
+
 import boto3
 import pysrt
 from boto3.dynamodb.conditions import Key
@@ -39,6 +40,8 @@ def get_time_stamps_for_keyword(request):
 
     str_res = table.query(KeyConditionExpression=filtering_exp).get("Items", [{}])[0].get("srt_file")
     res = GetTimeStamps(str_res, search_text).get_time_stamps()
+    if len(res) == 0:
+        return HttpResponse(json.dumps({"status": "No results found"}), content_type='application/json charset=utf-8')
     res_str = json.dumps({"timestamps": res})
     return HttpResponse(res_str, content_type='application/json charset=utf-8')
 
