@@ -9,30 +9,25 @@ SRT file will be stored in DynamoDB.
 * [Django](https://www.djangoproject.com/)
 * [Celery](https://docs.celeryq.dev/en/stable/getting-started/introduction.html)
 
-### Prerequisites
 
+### Installations
 
-* Python
-* Django
-* Celery
-* Boto3
-* Redis
-* AWS S3
-* DynamoDB
-* Pysrt
-
-### Installation
-
-1. Clone the repo
+1. Create the virtual environment:
    ```sh
-   git clone https://github.com/inAsees/be_zen_Project.git
+   python -m  venv venv
    ```
-2. Install pip (package installer for Python)
-   [here](https://pip.pypa.io/en/stable/installing/)
+2. Activate the virtual environment:
+    ```sh
+    source venv/bin/activate
+    ```
 3. Install Python packages(once you are inside the root directory of the project)
    ```sh
    pip install -r requirements.txt
-   ```
+4. You need to install ccextractor(for Linux) package, which will be used to extract the subtitles from the video.
+ Run the following command to install ccextractor:
+   ```sh
+   sudo apt-get install ccextractor
+    ```
 # Getting started
 
 1. This Application only works with Linux(since windows does not support Celery). 
@@ -41,23 +36,21 @@ valid AWS account configured with your system with permissions for S3 and Dynamo
 If you do not have an AWS account, you can sign up for one [here](https://aws.amazon.com/free/).
 To know how to generate Access Key and Secret Key, please visit 
 [AWS documentation](https://docs.aws.amazon.com/powershell/latest/userguide/pstools-appendix-sign-up.html).
-To know how to configure your AWS credentials, please visit
-[AWS Configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html).
+To know how to configure your AWS credentials using AWS CLI, 
+[Download and Install AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+, [Config AWS Credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html).
 3. You also need to install Redis which will be used to create the queue for the tasks.
    [Click here](https://redis.io/docs/getting-started/installation/install-redis-on-linux/) to install Redis.
-4. You need to install ccextractor(for Linux) package, which will be used to extract the subtitles from the video.
- Run the following command to install ccextractor:
-   ```sh
-   sudo apt-get install ccextractor
-    ```
+
 ## How to run the application
-1. Get into the root directory of the project(be_zen_Project) and run the following command:
+1. Get into the root directory of the project(be_zen_Project) and run the following command to
+  create the Table in DynamoDB.
     ```sh
     python create_table.py
     ```
-2. Get into the directory video_uploader (where manage.py lives) and run the following command 
-   in your terminal:
+2. Run the following command to get into video_uploader directory and start the Django server:
     ```sh
+    cd video_uploader 
     python manage.py runserver
     ```
 3. Now open another terminal and run the following command:
