@@ -1,64 +1,60 @@
+import json
 import uuid
 from pathlib import Path
-from urllib.parse import urlencode
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from backend_core.handle_video_file import SrtExtractor, GetTimeStamps, DeleteSrtFile
-from backend_core.upload_data import UploadKeywords
-from file_path import dir_name
-from .forms import VideoForm, SubtitleForm
+from typing import Optional, List, Dict
+import boto3
+import pysrt
+from boto3.dynamodb.conditions import Key
+from django.http import HttpResponse
+from django.template import loader
+
+from .tasks import strip_cc_and_upload
 
 
-def extract_srt(request):
-    if request.method == "GET":
-        form = VideoForm()
-        return render(request, "index.html", {"form": form})
-
-    vid_form = VideoForm(request.POST, request.FILES)
-    if not vid_form.is_valid():
-        form = VideoForm()
-        return render(request, "index.html", {"form": form})
-    vid_file_path = str(Path(vid_form.cleaned_data['myfile'].temporary_file_path()))
-    srt_file_path = "{}\{}.srt".format(dir_name, str(uuid.uuid4()))
-    srt_extractor = SrtExtractor(vid_file_path, srt_file_path)
-    srt_extractor.extract_srt_file()
-    if not srt_extractor.is_subprocess_successful():
-        messages.error(request, "Subtitle extraction failed. Please try again or make sure video contain subtitles.")
-        DeleteSrtFile(srt_file_path).delete_srt_file()
-        form = VideoForm()
-        return render(request, "index.html", {"form": form})
-    messages.success(request, "Subtitle extraction successful and video uploaded to S3 bucket.")
-    vid_form.save()
-    base_url = reverse('search_subtitle')
-    query_string = urlencode({'srt_file_path': srt_file_path})
-    url = '{}?{}'.format(base_url, query_string)
-    return redirect(url)
+def index(request):
+    template = loader.get_template('subtitle_search/index.html')
+    context = {}
+    return HttpResponse(template.render(context, request))
 
 
-def search_subtitle(request):
-    if request.method == "GET":
-        sub_form = SubtitleForm()
-        return render(request, "subtitle_search.html", {"sub_form": sub_form})
+def extract_cc(request):
+    vid_file_path = str(Path(json.loads(request.body).get("filePath")))
+    uid = str(uuid.uuid4())
+    strip_cc_and_upload.delay(vid_file_path, uid)
+    data = json.dumps({"id": uid})
+    return HttpResponse(data, content_type='application/json charset=utf-8')
 
-    sub_form = SubtitleForm(request.POST)
-    if not sub_form.is_valid():
-        sub_form = SubtitleForm()
-        return render(request, "subtitle_search.html", {"sub_form": sub_form})
-    keywords = sub_form.cleaned_data['text']
-    srt_file_path = request.GET.get('srt_file_path')
-    time_stamps = GetTimeStamps(srt_file_path, keywords).get_time_stamps()
-    if time_stamps is None:
-        messages.error(request, "SRT file not found.Please try uploading the video again.")
-        return redirect(extract_srt)
-    elif len(time_stamps) == 0:
-        messages.error(request, "No time stamps found for the given text.")
-        sub_form = SubtitleForm()
-        return render(request, "subtitle_search.html", {"sub_form": sub_form})
 
-    UploadKeywords(srt_file_path, keywords).upload_srt_and_keyword()
+def get_time_stamps_for_keyword(request):
+    req_json = json.loads(request.body)
+    dynamo_id = req_json.get("id")
+    search_text = req_json.get("text")
 
-    DeleteSrtFile(srt_file_path).delete_srt_file()
+    dyn_resource = boto3.resource('dynamodb', region_name="ap-south-1")
+    table = dyn_resource.Table('store_keywords')
 
-    messages.success(request, "Keywords and SRT file uploaded to DynamoDB.")
-    return render(request, "subtitle_search.html", {"time_stamps": time_stamps})
+    filtering_exp = Key("partition_key").eq(dynamo_id)
+    str_res = table.query(KeyConditionExpression=filtering_exp).get("Items", [{}])[0].get("srt_file")
+
+    print(str_res)
+    res = GetTimeStamps(str_res, search_text).get_time_stamps()
+    res_str = json.dumps({"timestamps": res})
+    return HttpResponse(res_str, content_type='application/json charset=utf-8')
+
+
+class GetTimeStamps:
+    def __init__(self, srt_content: str, keywords: str):
+        self._srt_content = srt_content
+        self._keywords = keywords
+
+    def get_time_stamps(self) -> Optional[List[Dict]]:
+        sub_list = pysrt.from_string(self._srt_content)
+        time_stamps = []
+        for sub in sub_list:
+            if self._keywords.lower() in sub.text.lower():
+                dic = {
+                    "start": str(sub.start.to_time()),
+                    "end": str(sub.end.to_time())
+                }
+                time_stamps.append(dic)
+        return time_stamps

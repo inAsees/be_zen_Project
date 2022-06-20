@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>"Subtitle Search"</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var job_id;
+            $("#btnProcess").click(function(){
+               $.ajax({
+                    type: 'POST',
+                    url: 'http://127.0.0.1:8000/subtitle_search/extractcc',
+                    data: JSON.stringify({"filePath": $("#file_name").val()}),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function(data) {job_id=data.id;},
+                    error: function(data){alert("fail");}
+               });
+            });
+            $("#btnSearch").click(function(){
+                $("#timestamps").val("Sent");
+                $.ajax({
+                    type: 'POST',
+                    url: "http://127.0.0.1:8000/subtitle_search/search",
+                    data: JSON.stringify({"id": job_id, "text": $("#search_text").val()}),
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function(data) {
+                        var blkstr = [];
+                        $.each(data.timestamps, function(idx,val) {
+                          var str = val.start + " -> " + val.end;
+                          blkstr.push(str);
+                        });
+                        $("#timestamps").val(blkstr.join("\n"));
+                    },
+                    error: function(data){alert("fail");}
+               });
+            });
+        });
+
+
+    </script>
+</head>
+<body>
+<input type="text" id="file_name" name="fname" value="/home/anmol/Downloads/asees123.mp4">
+<button type="button" id="btnProcess">Process</button>
+<br>
+<br>
+<br>
+<input type="text" id="search_text" name="search_text">
+<button type="button" id="btnSearch">Search</button>
+<br>
+<br>
+<textarea id="timestamps">zz</textarea>
+</body>
+</html>
