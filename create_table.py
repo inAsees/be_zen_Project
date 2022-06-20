@@ -1,9 +1,4 @@
-import os
-
 import boto3
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 def create_table(dyn_resource=None):
@@ -14,9 +9,7 @@ def create_table(dyn_resource=None):
     :return: The newly created table.
     """
     if dyn_resource is None:
-        dyn_resource = boto3.resource('dynamodb', aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-                                      aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
-                                      )
+        dyn_resource = boto3.resource('dynamodb')
 
     table_name = 'store_keywords'
     params = {
