@@ -57,3 +57,6 @@ To know how to configure your AWS credentials using AWS CLI,
     ```sh
     celery -A video_uploader.celery worker -l INFO
     ```
+   
+# Snapshot of the working web application
+![WhatsApp Image 2022-06-20 at 8 34 11 PM](https://user-images.githubusercontent.com/96414381/174635563-ee92ec3a-8ec0-4549-948b-caf61ce585cc.jpeg)
