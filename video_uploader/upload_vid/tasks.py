@@ -1,7 +1,6 @@
 import subprocess
 import tempfile
 from pathlib import Path
-
 import boto3
 from celery import shared_task
 

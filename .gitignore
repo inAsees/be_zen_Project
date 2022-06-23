@@ -1,6 +1,5 @@
 # created by virtualenv automatically
-venv
+be_zen_venv
 .idea
 backend_core/.env
 .env
-.gitignore
